@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="jquery.js"></script> 
+    
+    <!-- <script> 
+    $(function(){
+      $("#div1").load("TEST.html"); 
+    });
+    </script> -->
+    <title>Document</title>
+</head>
+<body>
+    <div id='div1'>
+        <button id='btn1'>Sheet 1</button>
+        <button>Sheet 2</button>
+        <button>Sheet 3</button>
+        <button>Sheet 4</button>
+        <button>Close</button>
+        <h1>The iframe element</h1>
+        <object data="TEST.html"></object>'
+        <object data="TEST.html"></object>'
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/gh/linways/table-to-excel@v1.0.4/dist/tableToExcel.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#btn1").click(function(){
+              TableToExcel.convert(document.getElementById("tab1"), {
+                  name: "Traceability.xlsx",
+                  sheet: {
+                  name: "Sheet1"
+                  }
+                });
+              });
+        });
+      </script>
+    
+
+</body>
+</html>

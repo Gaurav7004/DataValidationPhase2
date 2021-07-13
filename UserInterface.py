@@ -307,7 +307,7 @@ class Ui_Dialog(object):
         self.label_5.setText(_translate("Dialog", "          Rural/Urban"))
         self.label_6.setText(_translate("Dialog", "           Ownership"))
         self.label_7.setText(_translate("Dialog", "         Facility Name"))
-        self.label_8.setText(_translate("Dialog", "  Add Filters"))
+        self.label_8.setText(_translate("Dialog", "  Select Filters"))
         self.pushButton_7.setText(_translate("Dialog", "Export"))
         self.pushButton_8.setText(_translate("Dialog", "Reset"))
         self.lineEdit_2.setPlaceholderText(_translate("Dialog", "  Facility Type selected will display here ..."))
@@ -774,6 +774,7 @@ class Ui_Dialog(object):
         list_set = df['col_18'].to_list()
 
         item = list_set
+        item = sorted(list_set, key=str.upper)
 
         # looping to fill checkboxes, initially all checkboxes will be checked
         for i in range(len(item)):
@@ -876,10 +877,11 @@ class Ui_Dialog(object):
         checkBox.stateChanged.connect(self.slotSelectOwnership)
 
         # list storing Facility Name data
-        df['col_19'].fillna('Blank', inplace = True)
+        df['col_19'].fillna('blank', inplace = True)
         list_set = df['col_19'].to_list()
 
         item = list_set
+        item = sorted(list_set, key=str.upper)
 
         # looping to fill checkboxes, initially all checkboxes will be checked
         for i in range(len(item)):
@@ -951,7 +953,7 @@ class Ui_Dialog(object):
     # To count summary of the Modified Checks
     # =======================================
     def summaryReport(self):
-        global final_result_summ1, final_result_summ2, col_sum, dft_ARFacilityWise, dft_ARCheckWise, FList1
+        global final_result_summ1, final_result_summ2, col_sum, dft_ARFacilityWise, dft_ARCheckWiseInc, FList1, dft_ARCheckWisePRE, FList2
         FType = self.lineEdit_2.text()
 
         # For Health Sub Centre
@@ -1429,12 +1431,15 @@ class Ui_Dialog(object):
                                                             })
                                                             
         FList1 = final_result_summ1["Facilities(Name) Showing Inconsistent"].tolist()
+        FList2 = final_result_summ1["Facilities (Name) Showing Probable Reporting Error"].tolist()
 
         # Sorting ascending to descending
         FList1.sort(key=lambda k: len(k), reverse=True)
+        FList2.sort(key=lambda k: len(k), reverse=True)
 
 
         dataframeForSheet4 = final_result_summ1[['Conditions', 'Description', 'Inconsistent', 'Facilities(Name) Showing Inconsistent']]
+        dataframeForSheet5 = final_result_summ1[['Conditions', 'Description', 'Probable Reporting Error', 'Facilities (Name) Showing Probable Reporting Error']]
 
         # Counting total numnber of facility names and calculating percentage and 
         # Coloring percentage >=25% to RED
@@ -1547,6 +1552,8 @@ class Ui_Dialog(object):
 
         # Remoiving inconsistent facility names from validation summary sheet
         final_result_summ1.drop(['Facilities(Name) Showing Inconsistent'], axis = 1, inplace=True)
+        # Remoiving PRE facility names from validation summary sheet
+        final_result_summ1.drop(['Facilities (Name) Showing Probable Reporting Error'], axis = 1, inplace=True)
 
         final_result_summ1 = final_result_summ1.style.apply(select_col_SumSheet, axis=None)
 
@@ -1587,8 +1594,15 @@ class Ui_Dialog(object):
         ## Third Summary Report (Top 10 Validation Checks not performing good)
         ## --------------------
         '''
-        dft_ARCheckWise = dataframeForSheet4.sort_values(by=['Inconsistent'], ascending=False)
-        dft_ARCheckWise = dft_ARCheckWise.reset_index(drop=True)
+        dft_ARCheckWiseInc = dataframeForSheet4.sort_values(by=['Inconsistent'], ascending=False)
+        dft_ARCheckWiseInc = dft_ARCheckWiseInc.reset_index(drop=True)
+
+        '''
+        ## Fourth Summary Report (Top 10 Validation Checks not performing good)
+        ## --------------------
+        '''
+        dft_ARCheckWisePRE = dataframeForSheet5.sort_values(by=['Probable Reporting Error'], ascending=False)
+        dft_ARCheckWisePRE = dft_ARCheckWisePRE.reset_index(drop=True)
 
 
         '''  To find percentage Facility Type Wise   '''
@@ -1627,11 +1641,6 @@ class Ui_Dialog(object):
 
         col_percentageInc_rank = []
         col_percentageErr_rank = []
-        # col_percentageInc_Bucket = []
-        # col_percentageErr_Bucket = []
-
-        
-        
 
         # For All Inconsistents in all five ranges respectively
         # Blank list for Inconsistents
@@ -1751,12 +1760,12 @@ class Ui_Dialog(object):
 
         final_result_summ2 = final_result_summ2.style.apply(select_col, axis=None)
 
-        return final_result_summ1, final_result_summ2, dft_ARCheckWise
+        return final_result_summ1, final_result_summ2, dft_ARCheckWiseInc, dft_ARCheckWisePRE
 
 
     # EXPORT FILE
     def export(self):
-        table_result1, table_result2, table_result3= self.summaryReport()
+        table_result1, table_result2, table_result3, table_result4 = self.summaryReport()
 
         # Rename orignal headers
         df.rename(res_dict , axis=1, inplace=True)
@@ -1764,18 +1773,25 @@ class Ui_Dialog(object):
         # Remove column names month and year
         df.drop(['Month', 'Year'], axis = 1, inplace=True)
 
+        new_list = [[""]]
+        table_result_content = pd.DataFrame(new_list)
+
         # Save file dialog
         filename = QFileDialog.getSaveFileName(Dialog, "Save to Excel", "Summary_Sheet",
                                                 "Excel Spreadsheet (*.xlsx);;"
                                                 "All Files (*)")[0]
 
+        # Taking transpose of data 
         table_result3 = table_result3.T
+        table_result4 = table_result4.T
 
         # exporting to excel
         with pd.ExcelWriter(filename) as writer: 
-            table_result1.to_excel(writer, sheet_name='Validation Summary Sheet', engine='openpyxl')
+            table_result_content.to_excel(writer, sheet_name='Description', engine='openpyxl')
             table_result2.to_excel(writer, sheet_name='Facility Guidance Sheet', engine='openpyxl')
-            table_result3.to_excel(writer, sheet_name='Attention Required Check Wise', engine='openpyxl')
+            table_result1.to_excel(writer, sheet_name='Validation Summary Sheet', engine='openpyxl')
+            table_result3.to_excel(writer, sheet_name='Attention Reqd (Inconsistent)', engine='openpyxl')
+            table_result4.to_excel(writer, sheet_name='Attention Reqd (PRE)', engine='openpyxl')
             df.to_excel(writer, sheet_name='Validated_Data')
 
         import openpyxl
@@ -1787,11 +1803,37 @@ class Ui_Dialog(object):
 
         # PALETTES
         workbook = load_workbook(filename)
+        sheet_0 = workbook['Description']
         sheet = workbook['Facility Guidance Sheet']
         sheet_1 = workbook['Validation Summary Sheet']
-        sheet_2 = workbook['Attention Required Check Wise']
+        sheet_2 = workbook['Attention Reqd (Inconsistent)']
+        sheet_3 = workbook['Attention Reqd (PRE)']
 
-        # Activating sheets
+        # Handling contents sheet
+        workbook.active = sheet_0
+        sheet_0.sheet_view.showGridLines = False
+        sheet_0.cell(row=7, column=7).alignment = Alignment(horizontal='right')
+        sheet_0['G7'] = "   Data Validation Check Tool"
+        sheet_0['G8'] = "Facility Type:" + self.lineEdit_2.text()
+        sheet_0['G9'] = "Sheet Number"
+        sheet_0['G10'] = "Sheet 1"
+        sheet_0['G11'] = "Sheet 2"
+        sheet_0['G12'] = "Sheet 3"
+        sheet_0['G13'] = "Sheet 4"
+        sheet_0['G14'] = "Sheet 5"
+
+        sheet_0['H7'] = ""
+        sheet_0['H8'] = "Duration:" + self.lineEdit_3.text()
+        sheet_0['H9'] = "Description"
+        sheet_0['H10'] = "Validation Summary"
+        sheet_0['H11'] = "Facility Guidance sheet"
+        sheet_0['H12'] = "AR(Inconsistent)"
+        sheet_0['H13'] = "AR(PRE)"
+        sheet_0['H14'] = "AR(PRE)"
+        workbook.save(filename=filename)
+
+
+        # Activating sheets 
         workbook.active = sheet
         workbook.active = sheet_1
 
@@ -1887,8 +1929,8 @@ class Ui_Dialog(object):
         workbook.save(filename=filename)
         workbook.save(filename=filename)
 
-        # Attention Required Sheet
-        # ========================
+        # Attention Required Sheet (Inconsistent)
+        # =======================================
 
         workbook.active = sheet_2
         sheet_2.sheet_view.showGridLines = False
@@ -1919,6 +1961,36 @@ class Ui_Dialog(object):
                 sheet_2.cell(row=k+2, column=11).fill = PatternFill(fgColor="EF9A9A", fill_type = "solid")
         
         workbook.save(filename=filename)
+
+
+        # Attention Required Sheet (PRE)
+        # =======================================
+        workbook.active = sheet_3
+
+        sheet_3.sheet_view.showGridLines = False
+        for i in range(len(FList2)):
+
+            for j in range(len(FList2[i])):
+                sheet_3.cell(row=j+5,column=i+2).value = FList2[i][j]
+                
+            # Colors
+            for k in range(1, len(FList2[i])+5):
+                sheet_3.cell(row=4, column=i+1).alignment = Alignment(horizontal='center')
+                sheet_3.cell(row=2, column=i+1).fill = PatternFill(fgColor="fff5be", fill_type = "solid")
+                # Top 10 Facility Checks not working well
+                sheet_3.cell(row=k+2, column=2).fill = PatternFill(fgColor="EF9A9A", fill_type = "solid")
+                sheet_3.cell(row=k+2, column=3).fill = PatternFill(fgColor="EF9A9A", fill_type = "solid")
+                sheet_3.cell(row=k+2, column=4).fill = PatternFill(fgColor="EF9A9A", fill_type = "solid")
+                sheet_3.cell(row=k+2, column=5).fill = PatternFill(fgColor="EF9A9A", fill_type = "solid")
+                sheet_3.cell(row=k+2, column=6).fill = PatternFill(fgColor="EF9A9A", fill_type = "solid")
+                sheet_3.cell(row=k+2, column=7).fill = PatternFill(fgColor="EF9A9A", fill_type = "solid")
+                sheet_3.cell(row=k+2, column=8).fill = PatternFill(fgColor="EF9A9A", fill_type = "solid")
+                sheet_3.cell(row=k+2, column=9).fill = PatternFill(fgColor="EF9A9A", fill_type = "solid")
+                sheet_3.cell(row=k+2, column=10).fill = PatternFill(fgColor="EF9A9A", fill_type = "solid")
+                sheet_3.cell(row=k+2, column=11).fill = PatternFill(fgColor="EF9A9A", fill_type = "solid")
+        
+        workbook.save(filename=filename)
+
 
         # Create the messagebox object
         self.msg = QMessageBox()

@@ -1,4 +1,5 @@
 import re, jinja2
+from typing_extensions import final
 import numpy as np
 import pandas as pd
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -6,7 +7,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFileDialog,QMessageBox
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
-from openpyxl.styles import PatternFill, Alignment, Border
+from openpyxl.styles import PatternFill, Alignment, Border, Font
 from HealthSubCentreVal import *
 from PrimaryHealthCentre import *
 from SubDistrictHospitalVal import *
@@ -551,8 +552,8 @@ class Ui_Dialog(object):
         self.checkBoxs = []
 
         # Selectall added into Dropdown
-        checkBox = QtWidgets.QCheckBox("Select all", self.menu)
-
+        checkBox = QtWidgets.QCheckBox("Select all/ Deselect all", self.menu)
+        checkBox.setStyleSheet("color: red; spacing: 5px; font-size:15px;")
         # All the checkboxes are enabled to check
         checkableAction = QtWidgets.QWidgetAction(self.menu)
         checkableAction.setDefaultWidget(checkBox)
@@ -654,8 +655,8 @@ class Ui_Dialog(object):
         self.checkBoxs = []
 
         # Selectall added into Dropdown
-        checkBox = QtWidgets.QCheckBox("Select all", self.menu)
-
+        checkBox = QtWidgets.QCheckBox("Select all/ Deselect all", self.menu)
+        checkBox.setStyleSheet("color: red; spacing: 5px; font-size:15px;")
         # All the checkboxes are enabled to check
         checkableAction = QtWidgets.QWidgetAction(self.menu)
         checkableAction.setDefaultWidget(checkBox)
@@ -745,7 +746,7 @@ class Ui_Dialog(object):
         self.keywords = dict([(i, []) for i in range(df.shape[0])])
         print(self.keywords)
         self.menu = QtWidgets.QMenu(Dialog)
-        self.menu.setStyleSheet('QMenu { menu-scrollable: true; width: 200 }')
+        self.menu.setStyleSheet('QMenu { menu-scrollable: true; width: 300 }')
         font = self.menu.font()
         font.setPointSize(12)
         font.setBold(True)
@@ -760,8 +761,8 @@ class Ui_Dialog(object):
         self.checkBoxs = []
 
         # Selectall added into Dropdown
-        checkBox = QtWidgets.QCheckBox("Select all", self.menu)
-
+        checkBox = QtWidgets.QCheckBox("Select all/ Deselect all", self.menu)
+        checkBox.setStyleSheet("color: red; spacing: 5px; font-size:15px;")
         # All the checkboxes are enabled to check
         checkableAction = QtWidgets.QWidgetAction(self.menu)
         checkableAction.setDefaultWidget(checkBox)
@@ -852,7 +853,7 @@ class Ui_Dialog(object):
         self.keywords = dict([(i, []) for i in range(df.shape[0])])
         print(self.keywords)
         self.menu = QtWidgets.QMenu(Dialog)
-        self.menu.setStyleSheet('QMenu { menu-scrollable: true; width: 200 }')
+        self.menu.setStyleSheet('QMenu { menu-scrollable: true; width: 300 }')
         font = self.menu.font()
         font.setPointSize(12)
         font.setBold(True)
@@ -867,8 +868,8 @@ class Ui_Dialog(object):
         self.checkBoxs = []
 
         # Selectall added into Dropdown
-        checkBox = QtWidgets.QCheckBox("Select all", self.menu)
-
+        checkBox = QtWidgets.QCheckBox("Select all/ Deselect all", self.menu)
+        checkBox.setStyleSheet("color: red; spacing: 5px; font-size:15px;")
         # All the checkboxes are enabled to check
         checkableAction = QtWidgets.QWidgetAction(self.menu)
         checkableAction.setDefaultWidget(checkBox)
@@ -953,7 +954,7 @@ class Ui_Dialog(object):
     # To count summary of the Modified Checks
     # =======================================
     def summaryReport(self):
-        global final_result_summ1, final_result_summ2, col_sum, dft_ARFacilityWise, dft_ARCheckWiseInc, FList1, dft_ARCheckWisePRE, FList2
+        global final_result_summ1, final_result_summ2, col_sum, dft_ARFacilityWise, dft_ARCheckWiseInc, FList1, dft_ARCheckWisePRE, FList2, dft_FacilityWisePRE, dft_FacilityWiseInc, FList3, FList4
         FType = self.lineEdit_2.text()
 
         # For Health Sub Centre
@@ -1384,7 +1385,7 @@ class Ui_Dialog(object):
         # To show facilities in a column
         colInterest = df_['col_14']
         
-        ''' For Inc '''
+        ''' For Inconsistent '''
         inconsistent_list = []
 
         lg = len(df_SummReport.columns)
@@ -1401,12 +1402,9 @@ class Ui_Dialog(object):
 
             inconsistent_list.append(temp)           
 
-
-        print(inconsistent_list)
-
         ''' For PRE '''
         PRE_list = []
-        # TO show facility codes in the sheet 1
+        # TO show facility in the sheet5
         lg = len(df_SummReport.columns)
 
         for i in range(0, lg):
@@ -1420,7 +1418,8 @@ class Ui_Dialog(object):
                 if pattern.match(str(primString)):
                     temp.append(colInterest[j])
 
-            PRE_list.append(temp)              
+            PRE_list.append(temp)      
+
 
         final_result_summ1 = pd.DataFrame({"Conditions": df_SummReport.columns, 
                                             "Description": val_Description,
@@ -1429,6 +1428,7 @@ class Ui_Dialog(object):
                                                         "Facilities (Name) Showing Probable Reporting Error": PRE_list,
                                                             "Probable Reporting Error": count_ProbableRErr,
                                                             })
+
                                                             
         FList1 = final_result_summ1["Facilities(Name) Showing Inconsistent"].tolist()
         FList2 = final_result_summ1["Facilities (Name) Showing Probable Reporting Error"].tolist()
@@ -1581,13 +1581,75 @@ class Ui_Dialog(object):
                 All_Blank.append('Yes')
             else:
                 All_Blank.append('No')
-                
 
+        
+
+        #########################################################   
+        #  Facility Specific Inconsistent (Sheet 6)      
+        colInterest = df_['col_14']
+        
+        ''' For Inconsistent '''
+        inc_list = []
+
+        lg = len(df_SummReport.columns)
+        len_df = df_SummReport.shape[0]
+
+        for i in range(0, len_df):
+            temp = []
+
+            colComparison = df_SummReport.iloc[i,:]
+            for j in range(0, lg):
+                primString = colComparison[j]
+                
+                if primString is 'Inconsistent':
+                    temp.append(df_SummReport.columns[j])
+
+            inc_list.append(temp)
+
+        ''' For PRE '''
+        pre_list = []
+
+        lg = len(df_SummReport.columns)
+        len_df = df_SummReport.shape[0]
+
+        for i in range(0, len_df):
+            temp = []
+
+            colComparison = df_SummReport.iloc[i,:]
+            for j in range(0, lg):
+                primString = colComparison[j]
+
+                pattern = re.compile("^P")
+                if pattern.match(str(primString)):
+                    temp.append(df_SummReport.columns[j])
+
+            pre_list.append(temp)
+
+        
+
+        ###################################################
+        
         final_result_summ2 = pd.DataFrame({ "Facility Name": df['col_14'].tolist(),
-                                                "Inconsistent": summ2_countInconsistent,
-                                                    "Probable Reporting Error": summ2_countProbableRErr,
-                                                        "All Blank": All_Blank,
-                                                        })
+                                                "District": df['col_5'].tolist(),
+                                                    "Rural/Urban": df['col_18'].tolist(),
+                                                        "Ownership": df['col_19'].tolist(),
+                                                            "Inconsistent": summ2_countInconsistent,
+                                                                "Probable Reporting Error": summ2_countProbableRErr,
+                                                                    "All Blank": All_Blank,
+                                                                        "Checks (Inconsistent)" : inc_list,
+                                                                            "Checks (PRE)": pre_list
+                                                                                })
+
+        # Sorting in alphabetical  order
+        final_result_summ2 = final_result_summ2.sort_values(by=['Facility Name'], ascending=True)
+        final_result_summ2 = final_result_summ2.reset_index(drop=True)
+
+        FList3 = final_result_summ2["Checks (Inconsistent)"].tolist()
+        FList4 = final_result_summ2["Checks (PRE)"].tolist()
+
+        # Sorting ascending to descending
+        FList3.sort(key=lambda k: len(k), reverse=True)
+        FList4.sort(key=lambda k: len(k), reverse=True)
 
         
         '''
@@ -1603,6 +1665,18 @@ class Ui_Dialog(object):
         '''
         dft_ARCheckWisePRE = dataframeForSheet5.sort_values(by=['Probable Reporting Error'], ascending=False)
         dft_ARCheckWisePRE = dft_ARCheckWisePRE.reset_index(drop=True)
+
+        '''
+        ## 5th and 6th Summary Report (Top 10 Validation Checks not performing good)
+        ## --------------------
+        '''
+        dataframeForSheet6 = final_result_summ2[['Facility Name', 'Inconsistent', 'Checks (Inconsistent)']]
+        dataframeForSheet7 = final_result_summ2[['Facility Name', 'Probable Reporting Error', 'Checks (PRE)']]
+        dft_FacilityWiseInc = dataframeForSheet6.sort_values(by=['Inconsistent'], ascending=False)
+        dft_FacilityWiseInc = dft_FacilityWiseInc.reset_index(drop=True)
+        dft_FacilityWisePRE = dataframeForSheet7.sort_values(by=['Probable Reporting Error'], ascending=False)
+        dft_FacilityWisePRE = dft_FacilityWisePRE.reset_index(drop=True)
+
 
 
         '''  To find percentage Facility Type Wise   '''
@@ -1703,6 +1777,9 @@ class Ui_Dialog(object):
         # Deleting unnecessary columns
         del final_result_summ2['PercentageInc']
         del final_result_summ2['PercentagePRErr']
+        del final_result_summ2['Checks (Inconsistent)']
+        del final_result_summ2['Checks (PRE)']
+
 
         def select_col(X):
             global cnt1, cnt2, cnt3, cnt4, cnt5, cnt6, cnt7, cnt8, cnt9, cnt10
@@ -1760,12 +1837,12 @@ class Ui_Dialog(object):
 
         final_result_summ2 = final_result_summ2.style.apply(select_col, axis=None)
 
-        return final_result_summ1, final_result_summ2, dft_ARCheckWiseInc, dft_ARCheckWisePRE
+        return final_result_summ1, final_result_summ2, dft_ARCheckWiseInc, dft_ARCheckWisePRE, dft_FacilityWiseInc, dft_FacilityWisePRE
 
 
     # EXPORT FILE
     def export(self):
-        table_result1, table_result2, table_result3, table_result4 = self.summaryReport()
+        table_result1, table_result2, table_result3, table_result4, table_result5, table_result6  = self.summaryReport()
 
         # Rename orignal headers
         df.rename(res_dict , axis=1, inplace=True)
@@ -1784,6 +1861,8 @@ class Ui_Dialog(object):
         # Taking transpose of data 
         table_result3 = table_result3.T
         table_result4 = table_result4.T
+        table_result5 = table_result5.T
+        table_result6 = table_result6.T
 
         # exporting to excel
         with pd.ExcelWriter(filename) as writer: 
@@ -1792,13 +1871,14 @@ class Ui_Dialog(object):
             table_result1.to_excel(writer, sheet_name='Validation Summary Sheet', engine='openpyxl')
             table_result3.to_excel(writer, sheet_name='Attention Reqd (Inconsistent)', engine='openpyxl')
             table_result4.to_excel(writer, sheet_name='Attention Reqd (PRE)', engine='openpyxl')
+            table_result5.to_excel(writer, sheet_name='Checks (Inconsistent)', engine='openpyxl')
+            table_result6.to_excel(writer, sheet_name='Checks (PRE)', engine='openpyxl')
             df.to_excel(writer, sheet_name='Validated_Data')
 
         import openpyxl
         from openpyxl import load_workbook
         from openpyxl.styles import PatternFill
         from openpyxl.chart import BarChart, Reference, Series
-        from openpyxl.worksheet.datavalidation import DataValidation
 
 
         # PALETTES
@@ -1808,28 +1888,52 @@ class Ui_Dialog(object):
         sheet_1 = workbook['Validation Summary Sheet']
         sheet_2 = workbook['Attention Reqd (Inconsistent)']
         sheet_3 = workbook['Attention Reqd (PRE)']
+        sheet_4 = workbook['Checks (Inconsistent)']
+        sheet_5 = workbook['Checks (PRE)']
 
         # Handling contents sheet
+        from openpyxl.styles.borders import Border, Side
+        thin_border = Border(left=Side(style='thin'), 
+                            right=Side(style='thin'), 
+                            top=Side(style='thin'), 
+                            bottom=Side(style='thin'))
+
         workbook.active = sheet_0
+
+        for i in range(10, 20):
+            sheet_0.cell(row=i+1, column=10).border = thin_border
+            sheet_0.cell(row=i+1, column=11).border = thin_border
+
         sheet_0.sheet_view.showGridLines = False
         sheet_0.cell(row=7, column=7).alignment = Alignment(horizontal='right')
-        sheet_0['G7'] = "   Data Validation Check Tool"
-        sheet_0['G8'] = "Facility Type:" + self.lineEdit_2.text()
-        sheet_0['G9'] = "Sheet Number"
-        sheet_0['G10'] = "Sheet 1"
-        sheet_0['G11'] = "Sheet 2"
-        sheet_0['G12'] = "Sheet 3"
-        sheet_0['G13'] = "Sheet 4"
-        sheet_0['G14'] = "Sheet 5"
+        sheet_0['J10'] = "   Data Validation Check Tool"
+        sheet_0['J11'] = "Facility Type:" + self.lineEdit_2.text()
+        sheet_0['J12'] = "Sheet Number"
+        sheet_0['J13'] = "Sheet 1"
+        sheet_0['J14'] = "Sheet 2"
+        sheet_0['J15'] = "Sheet 3"
+        sheet_0['J16'] = "Sheet 4"
+        sheet_0['J17'] = "Sheet 5"
+        sheet_0['J18'] = "Sheet 6"
+        sheet_0['J19'] = "Sheet 7"
 
-        sheet_0['H7'] = ""
-        sheet_0['H8'] = "Duration:" + self.lineEdit_3.text()
-        sheet_0['H9'] = "Description"
-        sheet_0['H10'] = "Validation Summary"
-        sheet_0['H11'] = "Facility Guidance sheet"
-        sheet_0['H12'] = "AR(Inconsistent)"
-        sheet_0['H13'] = "AR(PRE)"
-        sheet_0['H14'] = "AR(PRE)"
+        sheet_0['K10'] = ""
+        sheet_0['K11'] = "Duration:" + self.lineEdit_3.text()
+        sheet_0['K12'] = "Description"
+        sheet_0['K13'] = "Facility Guidance Sheet"
+        sheet_0['K14'] = "Validation Summary sheet"
+        sheet_0['K15'] = "Attention Reqd(Inconsistent)"
+        sheet_0['K16'] = "Attention Reqd(PRE)"
+        sheet_0['K17'] = "Checks (Inconsistent)"
+        sheet_0['K18'] = "Checks (PRE)"
+        sheet_0['K19'] = "Validated Data"
+
+        sheet_0['J10'].font = Font(size = 12, bold = True)
+        sheet_0['J10'].fill = PatternFill(fgColor="FFFFCC", fill_type = "solid")
+        sheet_0['K10'].fill = PatternFill(fgColor="FFFFCC", fill_type = "solid")
+        sheet_0['J11'].fill = PatternFill(fgColor="00FF00", fill_type = "solid")
+        sheet_0['K11'].fill = PatternFill(fgColor="00FF00", fill_type = "solid")
+        
         workbook.save(filename=filename)
 
 
@@ -1841,36 +1945,36 @@ class Ui_Dialog(object):
         sheet_1.sheet_view.showGridLines = False
 
         # Coloring and palettes of Facility Guidance Sheet
-        sheet["H4"] = "Range"
-        sheet["H5"] = ">= 50%"
-        sheet["H6"] = "25 - 50%"
-        sheet["H7"] = "10 - 25%"
-        sheet["H8"] = "5 - 10%"
-        sheet["H9"] = "< 5%"
-        sheet["H10"] = "Total Facilities"
+        sheet['N4'] = 'Color Brackets'
+        sheet['N5'].fill = PatternFill(fgColor="EF5350", fill_type = "solid")
+        sheet['N6'].fill = PatternFill(fgColor="FFAF00", fill_type = "solid")
+        sheet['N7'].fill = PatternFill(fgColor="C0C000", fill_type = "solid")
+        sheet['N8'].fill = PatternFill(fgColor="00FF00", fill_type = "solid")
+        sheet['N9'].fill = PatternFill(fgColor="00AF5F", fill_type = "solid")
 
-        sheet["I4"] = "Inconsistent"
-        sheet["I5"] = cnt1
-        sheet["I6"] = cnt2
-        sheet["I7"] = cnt3
-        sheet["I8"] = cnt4
-        sheet["I9"] = cnt5
-        sheet["I10"] = cnt1 + cnt2 + cnt3 + cnt4 + cnt5
+        sheet["O4"] = "Range"
+        sheet["O5"] = ">= 50%"
+        sheet["O6"] = "25 - 50%"
+        sheet["O7"] = "10 - 25%"
+        sheet["O8"] = "5 - 10%"
+        sheet["O9"] = "< 5%"
+        sheet["O10"] = "Total Facilities"
 
-        sheet["J4"] = "Probable Reporting Error"
-        sheet["J5"] = cnt6
-        sheet["J6"] = cnt7
-        sheet["J7"] = cnt8
-        sheet["J8"] = cnt9
-        sheet["J9"] = cnt10
-        sheet["J10"] = cnt6 + cnt7 + cnt8 + cnt9 + cnt10
+        sheet["P4"] = "Inconsistent"
+        sheet["P5"] = cnt1
+        sheet["P6"] = cnt2
+        sheet["P7"] = cnt3
+        sheet["P8"] = cnt4
+        sheet["P9"] = cnt5
+        sheet["P10"] = cnt1 + cnt2 + cnt3 + cnt4 + cnt5
 
-        sheet['G4'] = 'Color Brackets'
-        sheet['G5'].fill = PatternFill(fgColor="EF5350", fill_type = "solid")
-        sheet['G6'].fill = PatternFill(fgColor="FFAF00", fill_type = "solid")
-        sheet['G7'].fill = PatternFill(fgColor="C0C000", fill_type = "solid")
-        sheet['G8'].fill = PatternFill(fgColor="00FF00", fill_type = "solid")
-        sheet['G9'].fill = PatternFill(fgColor="00AF5F", fill_type = "solid")
+        sheet["Q4"] = "Probable Reporting Error"
+        sheet["Q5"] = cnt6
+        sheet["Q6"] = cnt7
+        sheet["Q7"] = cnt8
+        sheet["Q8"] = cnt9
+        sheet["Q9"] = cnt10
+        sheet["Q10"] = cnt6 + cnt7 + cnt8 + cnt9 + cnt10
 
         
         # Coloring of Validation Summary Sheet
@@ -1923,7 +2027,7 @@ class Ui_Dialog(object):
         plt.savefig("myplot2.png", dpi = 80)
 
         img = openpyxl.drawing.image.Image('myplot2.png')
-        img.anchor='G13'
+        img.anchor='N13'
 
         sheet.add_image(img)
         workbook.save(filename=filename)
@@ -1989,6 +2093,29 @@ class Ui_Dialog(object):
                 sheet_3.cell(row=k+2, column=10).fill = PatternFill(fgColor="EF9A9A", fill_type = "solid")
                 sheet_3.cell(row=k+2, column=11).fill = PatternFill(fgColor="EF9A9A", fill_type = "solid")
         
+        workbook.save(filename=filename)
+
+
+        # Checks Sheet (Inconsistent)
+        # =======================================
+        workbook.active = sheet_4
+
+        sheet_4.sheet_view.showGridLines = False
+        for i in range(len(FList3)):
+            for j in range(len(FList3[i])):
+                sheet_4.cell(row=j+4,column=i+2).value = FList3[i][j]
+
+        workbook.save(filename=filename)
+
+        # Checks Sheet (PRE)
+        # =======================================
+        workbook.active = sheet_5
+
+        sheet_5.sheet_view.showGridLines = False
+        for i in range(len(FList4)):
+            for j in range(len(FList4[i])):
+                sheet_5.cell(row=j+4,column=i+2).value = FList4[i][j]
+
         workbook.save(filename=filename)
 
 

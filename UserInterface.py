@@ -1,4 +1,4 @@
-import re, jinja2
+import re, os, sys
 from typing_extensions import final
 import numpy as np
 import pandas as pd
@@ -13,8 +13,8 @@ from PrimaryHealthCentre import *
 from SubDistrictHospitalVal import *
 from DistrictHospitalVal import *
 from CommunityHealthCentreVal import *
+from pandas.io.formats import style
 
-hiddenimports=['pandas', 'jinja2']
 
 # ---------------------------------------------------- UI -----------------------------------------------
 class Ui_Dialog(object):
@@ -45,7 +45,7 @@ class Ui_Dialog(object):
         font.setBold(True)
         font.setWeight(75)
         self.label.setFont(font)
-        self.label.setStyleSheet("QLabel{background-color: #00A5DB; color : white;border: 3px solid black;}\n"
+        self.label.setStyleSheet("QLabel{background-color: #003679; color : white;}\n"
 "\n"
 "")
         self.label.setObjectName("label")
@@ -67,7 +67,7 @@ class Ui_Dialog(object):
         self.pushButton.setFont(font)
         self.pushButton.setStyleSheet("background-color: #73C067;\n"
 "color: white;\n"
-"border: 3px solid black;")
+"")
         self.pushButton.setObjectName("pushButton")
         self.lineEdit = QtWidgets.QLineEdit(self.frame_3)
         self.lineEdit.setGeometry(QtCore.QRect(310, 10, 741, 61))
@@ -78,21 +78,21 @@ class Ui_Dialog(object):
         self.lineEdit.setFont(font)
         self.lineEdit.setStyleSheet("background-color: white;\n"
 "color: #656565;\n"
-"border: 3px solid black;")
+"")
         self.lineEdit.setObjectName("lineEdit")
         self.pushButton_2 = QtWidgets.QPushButton(self.frame_3)
         self.pushButton_2.clicked.connect(self.VerifyFType)
-        self.pushButton_2.setGeometry(QtCore.QRect(700, 170, 351, 61))
+        self.pushButton_2.setGeometry(QtCore.QRect(700, 120, 351, 71))
         font = QtGui.QFont()
         font.setPointSize(14)
         font.setBold(True)
         font.setWeight(75)
         self.pushButton_2.setFont(font)
-        self.pushButton_2.setStyleSheet("background-color: #00A5DB;color: white;border: 3px solid black;\n"
+        self.pushButton_2.setStyleSheet("background-color: #00A5DB;color: white;\n"
 "")
         self.pushButton_2.setObjectName("pushButton_2")
         self.frame_4 = QtWidgets.QFrame(self.frame_3)
-        self.frame_4.setGeometry(QtCore.QRect(20, 270, 661, 441))
+        self.frame_4.setGeometry(QtCore.QRect(20, 220, 661, 491))
         self.frame_4.setStyleSheet("QLabel{background-color: rgb(185, 255, 238);}\n"
 "\n"
 "")
@@ -102,35 +102,35 @@ class Ui_Dialog(object):
         self.pushButton_3 = QtWidgets.QPushButton(self.frame_4)
         self.pushButton_3.installEventFilter(Dialog)
         self.pushButton_3.clicked.connect(self.onSelectDistrict)
-        self.pushButton_3.setGeometry(QtCore.QRect(330, 140, 311, 51))
-        self.pushButton_3.setStyleSheet("border: 3px solid black;\n"
+        self.pushButton_3.setGeometry(QtCore.QRect(330, 160, 311, 51))
+        self.pushButton_3.setStyleSheet("\n"
 "background-color: rgb(222, 222, 222);\n"
 "")
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_4 = QtWidgets.QPushButton(self.frame_4)
-        self.pushButton_4 = QtWidgets.QPushButton(self.frame_4)
+        self.pushButton_4.installEventFilter(Dialog)
         self.pushButton_4.clicked.connect(self.onSelectRuralUrban)
-        self.pushButton_4.setGeometry(QtCore.QRect(330, 220, 311, 51))
-        self.pushButton_4.setStyleSheet("border: 3px solid black;\n"
+        self.pushButton_4.setGeometry(QtCore.QRect(330, 240, 311, 51))
+        self.pushButton_4.setStyleSheet("\n"
 "background-color: rgb(222, 222, 222);")
         self.pushButton_4.setObjectName("pushButton_4")
         self.pushButton_5 = QtWidgets.QPushButton(self.frame_4)
         self.pushButton_5.installEventFilter(Dialog)
         self.pushButton_5.clicked.connect(self.onSelectOwnership)
-        self.pushButton_5.setGeometry(QtCore.QRect(330, 300, 311, 51))
-        self.pushButton_5.setStyleSheet("border: 3px solid black;\n"
+        self.pushButton_5.setGeometry(QtCore.QRect(330, 320, 311, 51))
+        self.pushButton_5.setStyleSheet("\n"
 "background-color: rgb(222, 222, 222);\n"
 "")
         self.pushButton_5.setObjectName("pushButton_5")
         self.pushButton_6 = QtWidgets.QPushButton(self.frame_4)
         self.pushButton_6.installEventFilter(Dialog)
         self.pushButton_6.clicked.connect(self.onSelectFacilityName)
-        self.pushButton_6.setGeometry(QtCore.QRect(330, 380, 311, 51))
-        self.pushButton_6.setStyleSheet("border: 3px solid black;\n"
+        self.pushButton_6.setGeometry(QtCore.QRect(330, 400, 311, 51))
+        self.pushButton_6.setStyleSheet("\n"
 "background-color: rgb(222, 222, 222);")
         self.pushButton_6.setObjectName("pushButton_6")
         self.label_4 = QtWidgets.QLabel(self.frame_4)
-        self.label_4.setGeometry(QtCore.QRect(10, 140, 251, 51))
+        self.label_4.setGeometry(QtCore.QRect(10, 160, 251, 51))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -140,7 +140,7 @@ class Ui_Dialog(object):
 "background-color: rgb(255, 255, 255);")
         self.label_4.setObjectName("label_4")
         self.label_5 = QtWidgets.QLabel(self.frame_4)
-        self.label_5.setGeometry(QtCore.QRect(10, 220, 251, 51))
+        self.label_5.setGeometry(QtCore.QRect(10, 240, 251, 51))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -150,7 +150,7 @@ class Ui_Dialog(object):
 "background-color: rgb(255, 255, 255);")
         self.label_5.setObjectName("label_5")
         self.label_6 = QtWidgets.QLabel(self.frame_4)
-        self.label_6.setGeometry(QtCore.QRect(10, 300, 251, 51))
+        self.label_6.setGeometry(QtCore.QRect(10, 330, 251, 41))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -160,7 +160,7 @@ class Ui_Dialog(object):
 "background-color: rgb(255, 255, 255);")
         self.label_6.setObjectName("label_6")
         self.label_7 = QtWidgets.QLabel(self.frame_4)
-        self.label_7.setGeometry(QtCore.QRect(10, 380, 251, 51))
+        self.label_7.setGeometry(QtCore.QRect(10, 400, 251, 51))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -170,7 +170,7 @@ class Ui_Dialog(object):
 "background-color: rgb(255, 255, 255);")
         self.label_7.setObjectName("label_7")
         self.label_8 = QtWidgets.QLabel(self.frame_4)
-        self.label_8.setGeometry(QtCore.QRect(230, 30, 271, 51))
+        self.label_8.setGeometry(QtCore.QRect(220, 10, 221, 31))
         font = QtGui.QFont()
         font.setPointSize(16)
         font.setBold(True)
@@ -179,28 +179,45 @@ class Ui_Dialog(object):
         self.label_8.setStyleSheet("background-color: white;\n"
 "color: grey;")
         self.label_8.setObjectName("label_8")
+        self.label_11 = QtWidgets.QLabel(self.frame_4)
+        self.label_11.setGeometry(QtCore.QRect(10, 80, 261, 51))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_11.setFont(font)
+        self.label_11.setStyleSheet("color: grey;\n"
+"background-color: rgb(255, 255, 255);")
+        self.label_11.setObjectName("label_11")
+        self.pushButton_11 = QtWidgets.QPushButton(self.frame_4)
+        self.pushButton_11.clicked.connect(self.onSelectState)
+        self.pushButton_11.setGeometry(QtCore.QRect(330, 80, 311, 51))
+        self.pushButton_11.setStyleSheet("\n"
+"background-color: rgb(222, 222, 222);\n"
+"")
+        self.pushButton_11.setObjectName("pushButton_11")
         self.pushButton_7 = QtWidgets.QPushButton(self.frame_3)
         self.pushButton_7.clicked.connect(self.export)
-        self.pushButton_7.setGeometry(QtCore.QRect(1020, 390, 231, 71))
+        self.pushButton_7.setGeometry(QtCore.QRect(1020, 390, 261, 71))
         font = QtGui.QFont()
         font.setPointSize(14)
         font.setBold(True)
         font.setWeight(75)
         self.pushButton_7.setFont(font)
-        self.pushButton_7.setStyleSheet("background-color: #73C067;color: white;border: 3px solid black;")
+        self.pushButton_7.setStyleSheet("background-color: #73C067;color: white;")
         self.pushButton_7.setObjectName("pushButton_7")
         self.pushButton_8 = QtWidgets.QPushButton(self.frame_3)
         self.pushButton_8.clicked.connect(self.reset)
-        self.pushButton_8.setGeometry(QtCore.QRect(1020, 550, 231, 71))
+        self.pushButton_8.setGeometry(QtCore.QRect(1020, 550, 261, 71))
         font = QtGui.QFont()
         font.setPointSize(14)
         font.setBold(True)
         font.setWeight(75)
         self.pushButton_8.setFont(font)
-        self.pushButton_8.setStyleSheet("background-color: #B00020;color: white;border: 3px solid black;")
+        self.pushButton_8.setStyleSheet("background-color: #B00020;color: white;")
         self.pushButton_8.setObjectName("pushButton_8")
         self.lineEdit_2 = QtWidgets.QLineEdit(self.frame_3)
-        self.lineEdit_2.setGeometry(QtCore.QRect(20, 170, 441, 61))
+        self.lineEdit_2.setGeometry(QtCore.QRect(20, 120, 441, 71))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -208,10 +225,10 @@ class Ui_Dialog(object):
         self.lineEdit_2.setFont(font)
         self.lineEdit_2.setStyleSheet("background-color: white;\n"
 "color: #656565;\n"
-"border: 3px solid black;")
+"")
         self.lineEdit_2.setObjectName("lineEdit_2")
         self.label_9 = QtWidgets.QLabel(self.frame_3)
-        self.label_9.setGeometry(QtCore.QRect(1200, 670, 281, 31))
+        self.label_9.setGeometry(QtCore.QRect(1280, 670, 201, 31))
         font = QtGui.QFont()
         font.setFamily("MS Sans Serif")
         font.setPointSize(10)
@@ -220,7 +237,7 @@ class Ui_Dialog(object):
         self.label_9.setStyleSheet("color:#00395D;")
         self.label_9.setObjectName("label_9")
         self.label_2 = QtWidgets.QLabel(self.frame_3)
-        self.label_2.setGeometry(QtCore.QRect(20, 90, 611, 31))
+        self.label_2.setGeometry(QtCore.QRect(20, 80, 611, 21))
         font = QtGui.QFont()
         font.setFamily("MS Sans Serif")
         font.setPointSize(10)
@@ -232,7 +249,7 @@ class Ui_Dialog(object):
         self.label_2.setObjectName("label_2")
         self.pushButton_9 = QtWidgets.QPushButton(self.frame_3)
         self.pushButton_9.clicked.connect(self.methodology)
-        self.pushButton_9.setGeometry(QtCore.QRect(1260, 10, 221, 61))
+        self.pushButton_9.setGeometry(QtCore.QRect(1260, 10, 221, 71))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -240,11 +257,11 @@ class Ui_Dialog(object):
         self.pushButton_9.setFont(font)
         self.pushButton_9.setStyleSheet("background-color: #F47B1F;\n"
 "color: white;\n"
-"border: 3px solid black;")
+"")
         self.pushButton_9.setObjectName("pushButton_9")
         self.pushButton_10 = QtWidgets.QPushButton(self.frame_3)
         self.pushButton_10.clicked.connect(self.UserManual)
-        self.pushButton_10.setGeometry(QtCore.QRect(1260, 100, 221, 61))
+        self.pushButton_10.setGeometry(QtCore.QRect(1260, 120, 221, 71))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -252,10 +269,10 @@ class Ui_Dialog(object):
         self.pushButton_10.setFont(font)
         self.pushButton_10.setStyleSheet("background-color: #F47B1F;\n"
 "color: white;\n"
-"border: 3px solid black;")
+"")
         self.pushButton_10.setObjectName("pushButton_10")
         self.label_3 = QtWidgets.QLabel(self.frame_3)
-        self.label_3.setGeometry(QtCore.QRect(700, 240, 661, 21))
+        self.label_3.setGeometry(QtCore.QRect(700, 200, 661, 31))
         font = QtGui.QFont()
         font.setFamily("MS Sans Serif")
         font.setPointSize(10)
@@ -277,7 +294,7 @@ class Ui_Dialog(object):
         self.label_10.setStyleSheet("QLabel{color : red;}")
         self.label_10.setObjectName("label_10")
         self.lineEdit_3 = QtWidgets.QLineEdit(self.frame_3)
-        self.lineEdit_3.setGeometry(QtCore.QRect(480, 170, 201, 61))
+        self.lineEdit_3.setGeometry(QtCore.QRect(480, 120, 201, 71))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -285,7 +302,7 @@ class Ui_Dialog(object):
         self.lineEdit_3.setFont(font)
         self.lineEdit_3.setStyleSheet("background-color: white;\n"
 "color: #656565;\n"
-"border: 3px solid black;")
+"")
         self.lineEdit_3.setText("")
         self.lineEdit_3.setObjectName("lineEdit_3")
         self.horizontalLayout.addWidget(self.widget)
@@ -308,7 +325,9 @@ class Ui_Dialog(object):
         self.label_5.setText(_translate("Dialog", "          Rural/Urban"))
         self.label_6.setText(_translate("Dialog", "           Ownership"))
         self.label_7.setText(_translate("Dialog", "         Facility Name"))
-        self.label_8.setText(_translate("Dialog", "  Select Filters"))
+        self.label_8.setText(_translate("Dialog", "  Add Filters"))
+        self.label_11.setText(_translate("Dialog", "               State"))
+        self.pushButton_11.setText(_translate("Dialog", "-- All Selected --"))
         self.pushButton_7.setText(_translate("Dialog", "Export"))
         self.pushButton_8.setText(_translate("Dialog", "Reset"))
         self.lineEdit_2.setPlaceholderText(_translate("Dialog", "  Facility Type selected will display here ..."))
@@ -506,23 +525,23 @@ class Ui_Dialog(object):
     # =================================================
     '''
     def eventFilter(self, target, event):
+        if target == self.pushButton_11 and event.type() == QtCore.QEvent.MouseButtonPress:
+            self.pushButton_11.clicked.connect(self.onSelectState)
+            return True
+
         if target == self.pushButton_3 and event.type() == QtCore.QEvent.MouseButtonPress:
-            print("Checked District")
             self.pushButton_3.clicked.connect(self.onSelectDistrict)
             return True
 
         elif target == self.pushButton_4 and event.type() == QtCore.QEvent.MouseButtonPress:
-            print("Checked Facility Name")
             self.pushButton_4.clicked.connect(self.onSelectFacilityName)
             return True
 
         elif target == self.pushButton_5 and event.type() == QtCore.QEvent.MouseButtonPress:
-            print("Checked Rural/Urban")
             self.pushButton_5.clicked.connect(self.onSelectRuralUrban)
             return True
 
         elif target == self.pushButton_6 and event.type() == QtCore.QEvent.MouseButtonPress:
-            print("Checked Ownership")
             self.pushButton_6.clicked.connect(self.onSelectOwnership)
             return True
 
@@ -530,9 +549,110 @@ class Ui_Dialog(object):
 
 
     ################################################################################
-    # Select District
+    # Filter State Functionality
+    
+    def onSelectState(self, index):
+        self.keywords = dict([(i, []) for i in range(df.shape[0])])
+        print(self.keywords)
+        self.menu = QtWidgets.QMenu(Dialog)
+        self.menu.setStyleSheet('QMenu { menu-scrollable: true; width: 200 }')
+        font = self.menu.font()
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.menu.setFont(font)
 
+        index = 3
+        self.col = index
+
+        data_unique = []
+
+        self.checkBoxs = []
+
+        # Selectall added into Dropdown
+        checkBox = QtWidgets.QCheckBox("Select all / Deselect all", self.menu)
+        checkBox.setStyleSheet("color: red; spacing: 5px; font-size:15px;")
+        # All the checkboxes are enabled to check
+        checkableAction = QtWidgets.QWidgetAction(self.menu)
+        checkableAction.setDefaultWidget(checkBox)
+        self.menu.addAction(checkableAction)
+        checkBox.setChecked(True)
+        checkBox.stateChanged.connect(self.slotSelectState)
+
+        # list storing state data
+        df['col_3'].fillna('Blank', inplace = True)
+        list_set = df['col_3'].to_list()
+
+        item = list_set
+        item = sorted(list_set, key=str.upper)
+
+        # looping to fill checkboxes, initially all checkboxes will be checked
+        for i in range(len(item)):
+            if item[i] not in data_unique:
+                data_unique.append(item[i])
+                checkBox = QtWidgets.QCheckBox(item[i], self.menu)
+                checkBox.setChecked(True)
+                checkableAction = QtWidgets.QWidgetAction(self.menu)
+                checkableAction.setDefaultWidget(checkBox)
+                self.menu.addAction(checkableAction)
+                self.checkBoxs.append(checkBox)
+
+        # Ok, cancel button
+        btn = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel,
+                                            QtCore.Qt.Vertical, self.menu)
+
+        # ok selected
+        btn.accepted.connect(self.menuCloseState)
+        # rejected , nothing selected
+        btn.rejected.connect(self.menu.close)
+
+        checkableAction = QtWidgets.QWidgetAction(self.menu)
+        checkableAction.setDefaultWidget(btn)
+        self.menu.addAction(checkableAction)
+        self.pushButton_11.setMenu(self.menu)
+
+    # method to check -> uncheck and vice versa
+    def slotSelectState(self, state):
+        for checkbox in self.checkBoxs:
+            checkbox.setChecked(QtCore.Qt.Checked == state)
+
+    # after ok selected
+    def menuCloseState(self):
+        self.keywords[self.col] = []
+        for element in self.checkBoxs:
+            if element.isChecked():
+                self.keywords[self.col].append(element.text())
+        
+        self.filterdataState()
+        self.pushButton_11.setText('Selected')
+        self.pushButton_11.setEnabled(False)
+        self.menu.close()
+
+    # Filter data columnwise
+    def filterdataState(self):
+        global df
+        #keywords = dict([(i, []) for i in range(self.filterall.columnCount())])
+        columnsShow = dict([(i, True) for i in range(df['col_3'].shape[0])])
+        print(columnsShow)
+
+        j = 0
+        for j in range(df['col_3'].shape[0]):
+            item = df['col_3'].to_list()
+
+            # if self.keywords[self.col]:
+            if item[j] not in self.keywords[self.col]:
+                columnsShow[j] = False
+
+        # for key, value in columnsShow.items():
+        final_lst = [i for i in columnsShow.values()]
+        df = df[final_lst]
+        return df
+
+
+
+    ################################################################################
     # Filter District Functionality
+
     def onSelectDistrict(self, index):
         self.keywords = dict([(i, []) for i in range(df.shape[0])])
         print(self.keywords)
@@ -552,7 +672,7 @@ class Ui_Dialog(object):
         self.checkBoxs = []
 
         # Selectall added into Dropdown
-        checkBox = QtWidgets.QCheckBox("Select all/ Deselect all", self.menu)
+        checkBox = QtWidgets.QCheckBox("Select all / Deselect all", self.menu)
         checkBox.setStyleSheet("color: red; spacing: 5px; font-size:15px;")
         # All the checkboxes are enabled to check
         checkableAction = QtWidgets.QWidgetAction(self.menu)
@@ -2131,50 +2251,62 @@ class Ui_Dialog(object):
         # Display the message box
         self.msg.show()
 
-    # RESET FUNCTION
     def reset(self):
-        self.lineEdit.clear()
-        self.lineEdit_2.clear()
-        self.lineEdit_3.clear()
-        self.pushButton.setEnabled(True)
-        self.pushButton_2.setEnabled(True)
-        self.pushButton_3.setEnabled(True)
-        self.pushButton_4.setEnabled(True)
-        self.pushButton_5.setEnabled(True)
-        self.pushButton_6.setEnabled(True)
-        self.pushButton_7.setEnabled(True)
-        self.pushButton_3.setText('-- All Selected --')
-        self.pushButton_4.setText('-- All Selected --')
-        self.pushButton_5.setText('-- All Selected --')
-        self.pushButton_6.setText('-- All Selected --')
-
-
         # Create the messagebox object
         self.msg = QMessageBox()
         # Set the information icon
         self.msg.setWindowIcon(QtGui.QIcon('checked.png'))
         self.msg.setStyleSheet("QLabel { margin-right: 15px ; font-size: 18px; font-family: Arial;} QPushButton {background-color:lightgreen; font-family: Arial; font-size:20px;} ")
         # Set the main message
-        self.msg.setText("Reset Successful , Now you can upload data again.")
-        # Set the title of the window
-        self.msg.setWindowTitle("Reset Successful Message")
+        self.msg.setText("Begin reset")
         # Display the message box
         self.msg.show()
 
+        QtCore.QCoreApplication.quit()
+        status = QtCore.QProcess.startDetached(sys.executable, sys.argv)
+        print(status)
+
+    # # RESET FUNCTION
+    # def reset(self):
+    #     self.lineEdit.clear()
+    #     self.lineEdit_2.clear()
+    #     self.lineEdit_3.clear()
+    #     self.pushButton.setEnabled(True)
+    #     self.pushButton_2.setEnabled(True)
+    #     self.pushButton_3.setEnabled(True)
+    #     self.pushButton_4.setEnabled(True)
+    #     self.pushButton_5.setEnabled(True)
+    #     self.pushButton_6.setEnabled(True)
+    #     self.pushButton_7.setEnabled(True)
+    #     self.pushButton_3.setText('-- All Selected --')
+    #     self.pushButton_4.setText('-- All Selected --')
+    #     self.pushButton_5.setText('-- All Selected --')
+    #     self.pushButton_6.setText('-- All Selected --')
+
+
+    #     # Create the messagebox object
+    #     self.msg = QMessageBox()
+    #     # Set the information icon
+    #     self.msg.setWindowIcon(QtGui.QIcon('checked.png'))
+    #     self.msg.setStyleSheet("QLabel { margin-right: 15px ; font-size: 18px; font-family: Arial;} QPushButton {background-color:lightgreen; font-family: Arial; font-size:20px;} ")
+    #     # Set the main message
+    #     self.msg.setText("Reset Successful , Now you can upload data again.")
+    #     # Set the title of the window
+    #     self.msg.setWindowTitle("Reset Successful Message")
+    #     # Display the message box
+    #     self.msg.show()
+
     # Display methodology pdf in browser
     def methodology(self):
-        import os
         os.system('start Steps.pdf')
 
     # Display methodology pdf in browser
     def UserManual(self):
-        import os
         os.system('start Steps.pdf')
 
 
 ################################### Main Function ############################
 if __name__ == "__main__":
-    import sys
     app = QtWidgets.QApplication(sys.argv)
     Dialog = QtWidgets.QDialog()
     ui = Ui_Dialog()
